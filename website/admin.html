@@ -1,12 +1,62 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>SkillBridge Admin</title><script src="https://cdn.tailwindcss.com"></script></head>
 <body class="bg-slate-100 text-slate-800">
-<section id="login" class="min-h-screen grid place-items-center p-5"><form id="loginForm" class="w-full max-w-sm rounded-3xl bg-white p-8 shadow-xl"><img src="/brand-assets/logo.svg" class="h-12 mx-auto"><h1 class="mt-6 text-2xl font-black text-center">Admin access</h1><input id="password" type="password" class="mt-5 w-full border rounded-xl px-4 py-3" placeholder="Password" required><button class="mt-4 w-full rounded-xl bg-[#1E1B4B] text-white py-3 font-bold">Login</button><p class="mt-3 text-xs text-slate-500 text-center">Authorized staff only.</p></form></section>
+<section id="login" class="min-h-screen grid place-items-center p-5"><form id="loginForm" class="w-full max-w-sm rounded-3xl bg-white p-8 shadow-xl"><img src="../brand-assets/logo.svg" class="h-12 mx-auto"><h1 class="mt-6 text-2xl font-black text-center">Admin access</h1><input id="password" type="password" class="mt-5 w-full border rounded-xl px-4 py-3" placeholder="Password" required><button class="mt-4 w-full rounded-xl bg-[#1E1B4B] text-white py-3 font-bold">Login</button><p id="loginError" class="hidden mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700"></p><p class="mt-3 text-xs text-slate-500 text-center">Authorized staff only.</p></form></section>
 <main id="dashboard" class="hidden min-h-screen"><nav class="bg-[#1E1B4B] text-white px-5 py-4 flex justify-between"><b>SkillBridge Admissions</b><button id="logout" class="text-sm">Logout</button></nav><div class="max-w-7xl mx-auto p-5">
+<p id="storageNotice" class="hidden mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"></p>
 <div class="grid sm:grid-cols-3 gap-4"><div class="rounded-2xl bg-white p-5 shadow"><p class="text-sm text-slate-500">Total inquiries</p><b id="total" class="text-3xl">0</b></div><div class="rounded-2xl bg-white p-5 shadow"><p class="text-sm text-slate-500">AI track</p><b id="aiCount" class="text-3xl">0</b></div><div class="rounded-2xl bg-white p-5 shadow"><p class="text-sm text-slate-500">Human escalation</p><b id="humanCount" class="text-3xl text-red-700">0</b></div></div>
 <div class="mt-5 rounded-2xl bg-white p-5 shadow"><div class="flex justify-between items-center"><h2 class="font-black">Inquiry pipeline</h2><button id="export" class="rounded-lg bg-[#0F766E] text-white px-4 py-2 text-sm font-bold">Export CSV</button></div><p id="dashboardError" class="hidden mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700"></p><div class="mt-4 overflow-x-auto"><table class="w-full text-sm"><thead class="text-left border-b"><tr><th class="p-3">Lead</th><th>Track</th><th>Summary</th><th>Status</th><th>Received</th></tr></thead><tbody id="rows"></tbody></table></div></div></div></main>
 <script>
 let password = "";
+let storageMode = "api";
+const LOCAL_LEADS_KEY = "skillbridge_leads_v1";
+const STATIC_DEMO_PASSWORD = "admin123";
+const SAMPLE_LEADS = [
+  {
+    id: "sample-ai",
+    name: "Sample Student",
+    email: "sample.ai@example.com",
+    phone: "",
+    track: "AI & Prompting Bootcamp",
+    query: "Demo inquiry — replace this sample with a real inquiry.",
+    summary: "AI & Prompting Bootcamp",
+    status: "New",
+    humanFollowup: false,
+    createdAt: "Demo sample"
+  },
+  {
+    id: "sample-scholarship",
+    name: "Sample Scholarship Student",
+    email: "sample.scholarship@example.com",
+    phone: "",
+    track: "Scholarship Inquiry",
+    query: "Demo scholarship request — replace this sample with a real inquiry.",
+    summary: "Scholarship - Human Review",
+    status: "Scholarship Escalated",
+    humanFollowup: true,
+    createdAt: "Demo sample"
+  }
+];
 const adminHeaders = () => ({"X-Admin-Password": password});
+const localLeads = () => {
+  const saved = localStorage.getItem(LOCAL_LEADS_KEY);
+  if (saved !== null) {
+    const leads = JSON.parse(saved);
+    if (!Array.isArray(leads)) throw new Error("Saved browser inquiries are invalid.");
+    if (leads.length) return leads;
+  }
+  const samples = SAMPLE_LEADS.map((lead) => ({...lead}));
+  localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(samples));
+  return samples;
+};
+const saveLocalLeads = (leads) => localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(leads));
+const isStaticFallbackStatus = (response) => [404, 405, 501].includes(response.status);
+function useStaticStorage() {
+  if (password !== STATIC_DEMO_PASSWORD) throw new Error("Incorrect password for static demo mode.");
+  storageMode = "local";
+  document.querySelector("#storageNotice").textContent =
+    "Static demo mode: inquiries and status changes are stored only in this browser. The demo password and records are not secure and are not shared with admissions or other devices.";
+  document.querySelector("#storageNotice").classList.remove("hidden");
+}
 const showDashboardError = (message) => {
   const error = document.querySelector("#dashboardError");
   error.textContent = message;
@@ -15,20 +65,64 @@ const showDashboardError = (message) => {
 document.querySelector("#loginForm").onsubmit = async (event) => {
   event.preventDefault();
   password = document.querySelector("#password").value;
+  const loginError = document.querySelector("#loginError");
+  loginError.textContent = "";
+  loginError.classList.add("hidden");
   try {
-    const response = await fetch("/api/leads", {headers: adminHeaders()});
-    if (!response.ok) throw new Error(response.status === 401 ? "Incorrect password." : "Could not load admissions.");
+    let response;
+    try {
+      response = await fetch("/api/leads", {headers: adminHeaders()});
+    } catch (error) {
+      if (!(error instanceof TypeError)) throw error;
+    }
+    if (!response || isStaticFallbackStatus(response)) {
+      useStaticStorage();
+      localLeads();
+    } else if (response.status === 401) {
+      throw new Error("Incorrect password.");
+    } else if (!response.ok) {
+      throw new Error("Could not load admissions.");
+    }
     document.querySelector("#login").classList.add("hidden");
     document.querySelector("#dashboard").classList.remove("hidden");
     await load();
   } catch (error) {
-    alert(error.message);
+    loginError.textContent = error.message || "Unable to open the Admin Panel.";
+    loginError.classList.remove("hidden");
   }
 };
 document.querySelector("#logout").onclick = () => location.reload();
 document.querySelector("#export").onclick = async () => {
   try {
-    const response = await fetch("/api/export", {headers: adminHeaders()});
+    if (storageMode === "local") {
+      const leads = localLeads();
+      const columns = ["id", "name", "email", "phone", "track", "query", "summary", "status", "humanFollowup", "createdAt"];
+      const csvCell = (value) => {
+        let text = String(value ?? "");
+        if (/^[ \t\r\n]*[=+\-@]/.test(text)) text = `'${text}`;
+        return `"${text.replace(/"/g, '""')}"`;
+      };
+      const csv = [columns.map(csvCell).join(","), ...leads.map((lead) => columns.map((key) => csvCell(lead[key])).join(","))].join("\r\n");
+      const url = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "skillbridge-leads.csv";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
+    let response;
+    try {
+      response = await fetch("/api/export", {headers: adminHeaders()});
+    } catch (error) {
+      if (!(error instanceof TypeError)) throw error;
+    }
+    if (!response || isStaticFallbackStatus(response)) {
+      useStaticStorage();
+      await load();
+      document.querySelector("#export").click();
+      return;
+    }
     if (!response.ok) throw new Error("Could not export leads.");
     const url = URL.createObjectURL(await response.blob());
     const link = document.createElement("a");
@@ -45,9 +139,24 @@ async function load() {
     const errorBanner = document.querySelector("#dashboardError");
     errorBanner.textContent = "";
     errorBanner.classList.add("hidden");
-    const response = await fetch("/api/leads", {headers: adminHeaders()});
-    if (!response.ok) throw new Error("Could not refresh inquiries.");
-    const {leads} = await response.json();
+    let leads;
+    if (storageMode === "local") {
+      leads = localLeads();
+    } else {
+      let response;
+      try {
+        response = await fetch("/api/leads", {headers: adminHeaders()});
+      } catch (error) {
+        if (!(error instanceof TypeError)) throw error;
+      }
+      if (!response || isStaticFallbackStatus(response)) {
+        useStaticStorage();
+        leads = localLeads();
+      } else {
+        if (!response.ok) throw new Error("Could not refresh inquiries.");
+        ({leads} = await response.json());
+      }
+    }
     document.querySelector("#total").textContent = leads.length;
     document.querySelector("#aiCount").textContent = leads.filter((lead) => (lead.track || "").includes("AI")).length;
     document.querySelector("#humanCount").textContent = leads.filter((lead) => lead.humanFollowup).length;
@@ -78,12 +187,32 @@ async function load() {
       status.onchange = async () => {
         status.disabled = true;
         try {
-          const response = await fetch(`/api/leads/${lead.id}`, {
-            method: "PATCH",
-            headers: {...adminHeaders(), "Content-Type": "application/json"},
-            body: JSON.stringify({status: status.value})
-          });
-          if (!response.ok) throw new Error("Could not update lead status.");
+          if (storageMode === "local") {
+            const updatedLeads = localLeads().map((item) =>
+              item.id === lead.id ? {...item, status: status.value} : item
+            );
+            saveLocalLeads(updatedLeads);
+          } else {
+            let response;
+            try {
+              response = await fetch(`/api/leads/${lead.id}`, {
+                method: "PATCH",
+                headers: {...adminHeaders(), "Content-Type": "application/json"},
+                body: JSON.stringify({status: status.value})
+              });
+            } catch (error) {
+              if (!(error instanceof TypeError)) throw error;
+            }
+            if (!response || isStaticFallbackStatus(response)) {
+              useStaticStorage();
+              const updatedLeads = localLeads().map((item) =>
+                item.id === lead.id ? {...item, status: status.value} : item
+              );
+              saveLocalLeads(updatedLeads);
+            } else if (!response.ok) {
+              throw new Error("Could not update lead status.");
+            }
+          }
           await load();
         } catch (error) {
           status.disabled = false;
