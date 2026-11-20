@@ -47,7 +47,7 @@ The local `/api/leads` endpoint stores inquiries in `data/leads.json`; that file
 
 ## Static hosting (GitHub Pages)
 
-The website detects unavailable API routes and falls back to the verified `data/knowledge_base.json` (with an embedded copy for offline fallback). Chat answers, scholarship flags, inquiries, and Admin Panel status changes then use browser `localStorage`; they are private to that browser and are not sent to SkillBridge or shared across devices. The static demo Admin Panel password is `admin123`, but it is visible in client-side code and is not security. Do not collect real student personal information or use this mode for actual admissions. Use the Python server with a protected deployment and persistent storage for real leads. Voice input depends on browser Web Speech support and microphone permission.
+The website detects unavailable API routes and falls back to the verified `data/knowledge_base.json` (with an embedded copy for offline fallback). Chat answers, scholarship flags, inquiries, and Admin Panel status changes then use browser `localStorage`; they are private to that browser and are not sent to SkillBridge or shared across devices. Static demo login verifies a SHA-256 password digest in the browser, but client-side authentication is not security and the digest can be guessed offline. Do not collect real student personal information or use this mode for actual admissions. Use the Python server with a protected deployment and persistent storage for real leads. Voice input depends on browser Web Speech support and microphone permission.
 
 ## Regenerate assets
 

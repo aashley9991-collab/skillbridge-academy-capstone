@@ -9,7 +9,7 @@
 let password = "";
 let storageMode = "api";
 const LOCAL_LEADS_KEY = "skillbridge_leads_v1";
-const STATIC_DEMO_PASSWORD = "admin123";
+const STATIC_DEMO_PASSWORD_SHA256 = "bd8d52901d5acaf6f1ece2d276bab73684dfbce3d46250dd5a50e8bd141d8ad0";
 const SAMPLE_LEADS = [
   {
     id: "sample-ai",
@@ -37,6 +37,14 @@ const SAMPLE_LEADS = [
   }
 ];
 const adminHeaders = () => ({"X-Admin-Password": password});
+async function matchesStaticDemoPassword(candidate) {
+  if (!window.crypto || !window.crypto.subtle) {
+    throw new Error("Static demo login requires a browser with secure SHA-256 support.");
+  }
+  const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(candidate));
+  const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return hash === STATIC_DEMO_PASSWORD_SHA256;
+}
 const localLeads = () => {
   const saved = localStorage.getItem(LOCAL_LEADS_KEY);
   if (saved !== null) {
@@ -50,8 +58,8 @@ const localLeads = () => {
 };
 const saveLocalLeads = (leads) => localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(leads));
 const isStaticFallbackStatus = (response) => [404, 405, 501].includes(response.status);
-function useStaticStorage() {
-  if (password !== STATIC_DEMO_PASSWORD) throw new Error("Incorrect password for static demo mode.");
+async function useStaticStorage() {
+  if (!(await matchesStaticDemoPassword(password))) throw new Error("Incorrect password for static demo mode.");
   storageMode = "local";
   document.querySelector("#storageNotice").textContent =
     "Static demo mode: inquiries and status changes are stored only in this browser. The demo password and records are not secure and are not shared with admissions or other devices.";
@@ -76,7 +84,7 @@ document.querySelector("#loginForm").onsubmit = async (event) => {
       if (!(error instanceof TypeError)) throw error;
     }
     if (!response || isStaticFallbackStatus(response)) {
-      useStaticStorage();
+      await useStaticStorage();
       localLeads();
     } else if (response.status === 401) {
       throw new Error("Incorrect password.");
@@ -118,7 +126,7 @@ document.querySelector("#export").onclick = async () => {
       if (!(error instanceof TypeError)) throw error;
     }
     if (!response || isStaticFallbackStatus(response)) {
-      useStaticStorage();
+      await useStaticStorage();
       await load();
       document.querySelector("#export").click();
       return;
@@ -150,7 +158,7 @@ async function load() {
         if (!(error instanceof TypeError)) throw error;
       }
       if (!response || isStaticFallbackStatus(response)) {
-        useStaticStorage();
+        await useStaticStorage();
         leads = localLeads();
       } else {
         if (!response.ok) throw new Error("Could not refresh inquiries.");
@@ -204,7 +212,7 @@ async function load() {
               if (!(error instanceof TypeError)) throw error;
             }
             if (!response || isStaticFallbackStatus(response)) {
-              useStaticStorage();
+              await useStaticStorage();
               const updatedLeads = localLeads().map((item) =>
                 item.id === lead.id ? {...item, status: status.value} : item
               );
