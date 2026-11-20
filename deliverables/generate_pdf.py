@@ -4,6 +4,10 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether, Flowable
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "brand-assets"))
+from crest_drawing import draw_reportlab_crest
 
 OUT=Path(__file__).resolve().parent/"Student-Freelancing-Starter-Kit.pdf"
 
@@ -16,25 +20,14 @@ navy=colors.HexColor("#1E1B4B");teal=colors.HexColor("#0F766E");gold=colors.HexC
 class Crest(Flowable):
     def __init__(self):
         Flowable.__init__(self)
-        self.width=28*mm
-        self.height=25*mm
+        self.width=42*mm
+        self.height=44*mm
     def draw(self):
-        c=self.canv
-        p=c.beginPath()
-        p.moveTo(14*mm,24*mm);p.lineTo(26*mm,20*mm);p.lineTo(25*mm,10*mm);p.lineTo(21*mm,4*mm);p.lineTo(14*mm,1*mm);p.lineTo(7*mm,4*mm);p.lineTo(3*mm,10*mm);p.lineTo(2*mm,20*mm);p.close()
-        c.setFillColor(navy);c.setStrokeColor(gold);c.drawPath(p,fill=1,stroke=1)
-        c.setFillColor(colors.white)
-        c.wedge(5*mm,13*mm,14*mm,21*mm,180,180,fill=1,stroke=0)
-        c.wedge(14*mm,13*mm,23*mm,21*mm,180,180,fill=1,stroke=0)
-        c.setFillColor(gold)
-        c.wedge(14*mm,15*mm,23*mm,22*mm,210,110,fill=1,stroke=0)
-        c.setFillColor(teal);c.setStrokeColor(colors.white)
-        c.wedge(5*mm,4*mm,23*mm,13*mm,0,180,fill=1,stroke=1)
-        c.setStrokeColor(colors.white);c.line(14*mm,5*mm,14*mm,12*mm)
+        draw_reportlab_crest(self.canv, 0, 0, self.width, self.height)
 
 doc=SimpleDocTemplate(str(OUT),pagesize=A4,rightMargin=18*mm,leftMargin=18*mm,topMargin=18*mm,bottomMargin=18*mm,title="Student Freelancing & Remote Work Starter Kit")
 story=[]
-story += [Table([[Crest(),Paragraph("SKILLBRIDGE ACADEMY",styles["TitleWhite"])],[Paragraph("Student Freelancing & Remote Work Starter Kit",ParagraphStyle(name="Hero",parent=styles["BodyText"],textColor=colors.HexColor("#FFFFFF"),fontSize=18,leading=24))]],colWidths=[35*mm,139*mm],rowHeights=[28*mm,38*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,-1),navy),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),6*mm)])),Spacer(1,12*mm),
+story += [Table([[Crest(),Paragraph("SKILLBRIDGE ACADEMY",styles["TitleWhite"])],[Paragraph("Student Freelancing & Remote Work Starter Kit",ParagraphStyle(name="Hero",parent=styles["BodyText"],textColor=colors.HexColor("#FFFFFF"),fontSize=18,leading=24))]],colWidths=[48*mm,126*mm],rowHeights=[48*mm,32*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,-1),navy),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),6*mm)])),Spacer(1,12*mm),
 Paragraph("Start with skills, evidence, and a repeatable process.",styles["Section"]),
 Paragraph("This starter kit is a practical guide for Pakistani university students and fresh graduates exploring freelancing or remote work. It does not guarantee a job or income.",styles["BodyNavy"]),Spacer(1,8*mm)]
 

@@ -11,7 +11,11 @@ import requests
 from moviepy import AudioFileClip, ImageClip, concatenate_audioclips, concatenate_videoclips
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+import sys
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent / "brand-assets"))
+from crest_drawing import draw_pillow_crest
+
 OUT = ROOT / "promo-reel-30s.mp4"
 STOCK_DIR = ROOT / "stock-assets"
 W, H, FPS = 1080, 1920, 24
@@ -122,22 +126,6 @@ def fetch_stock_images() -> list[Path | None]:
     return cached
 
 
-def draw_falcon_crest(draw: ImageDraw.ImageDraw, x: int, y: int, scale: float = 1.0) -> None:
-    s = scale
-    point = lambda x0, y0: (int(x + x0 * s), int(y + y0 * s))
-    shield = [(42, 0), (78, 12), (76, 52), (60, 76), (42, 88), (24, 76), (8, 52), (6, 12)]
-    draw.polygon([point(px, py) for px, py in shield], fill=INDIGO, outline=COPPER, width=max(1, int(2 * s)))
-    wings = [(10, 22), (28, 29), (42, 24), (56, 29), (74, 22), (60, 41), (47, 44),
-             (58, 48), (50, 53), (42, 50), (34, 53), (26, 48), (37, 44), (24, 41)]
-    draw.polygon([point(px, py) for px, py in wings], fill=OFF_WHITE)
-    draw.polygon([point(px, py) for px, py in [(45, 29), (70, 23), (54, 38), (45, 39)]], fill=COPPER)
-    book = [(16, 56), (42, 62), (68, 56), (66, 72), (44, 82), (42, 80),
-            (40, 82), (18, 72)]
-    draw.polygon([point(px, py) for px, py in book], fill=TEAL, outline=OFF_WHITE, width=max(1, int(2 * s)))
-    draw.line([point(42, 62), point(42, 80)], fill=OFF_WHITE, width=max(1, int(2 * s)))
-    draw.polygon([point(px, py) for px, py in [(42, 5), (48, 15), (42, 24), (36, 15)]], fill=COPPER)
-
-
 def font_lines(draw: ImageDraw.ImageDraw, text: str, face: ImageFont.ImageFont, max_width: int) -> list[str]:
     lines: list[str] = []
     current = ""
@@ -197,9 +185,9 @@ def draw_overlay(base: Image.Image, scene: Scene, caption: str, scene_number: in
     draw = ImageDraw.Draw(image, "RGBA")
 
     draw.rounded_rectangle((48, 48, 1032, 286), radius=40, fill=(30, 27, 75, 228), outline=(248, 250, 252, 85), width=2)
-    draw_falcon_crest(draw, 76, 82, 1.25)
-    draw.text((190, 96), "SKILLBRIDGE", font=font(43, True), fill=OFF_WHITE)
-    draw.text((192, 154), "A C A D E M Y", font=font(22, True), fill=COPPER)
+    draw_pillow_crest(draw, 70, 58, 130)
+    draw.text((225, 96), "SKILLBRIDGE", font=font(43, True), fill=OFF_WHITE)
+    draw.text((227, 154), "A C A D E M Y", font=font(22, True), fill=COPPER)
     draw.text((840, 103), f"{scene_number:02d} / 05", font=font(25, True), fill=OFF_WHITE)
     for index in range(5):
         left = 842 + index * 29
