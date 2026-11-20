@@ -1,0 +1,3 @@
+Background images fetched from Unsplash image CDN (images.unsplash.com).
+Unsplash License: https://unsplash.com/license
+Image URLs are listed in generate_reel.py; verify attribution and licensing requirements before redistribution.

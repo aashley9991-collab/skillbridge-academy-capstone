@@ -1,0 +1,16 @@
+# Environment files may contain API keys or other secrets.
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Python bytecode and cache directories.
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Student inquiries contain personal information.
+/data/leads*.json
+/data/leads*.tmp

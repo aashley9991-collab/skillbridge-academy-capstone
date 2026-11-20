@@ -1,0 +1,26 @@
+{
+  "client": "SkillBridge Academy",
+  "description": "Online ed-tech institute offering weekend, mentor-led bootcamps for Pakistani university students and fresh graduates to start freelancing and remote work careers.",
+  "programs": [
+    {
+      "name": "AI & Prompting Bootcamp",
+      "duration": "4 weeks",
+      "fee_pkr": 8000
+    },
+    {
+      "name": "Freelance Digital Marketing",
+      "duration": "6 weeks",
+      "fee_pkr": 12000
+    }
+  ],
+  "schedule": "Live Zoom sessions on Saturdays and Sundays, 7:00 PM to 9:00 PM PKT",
+  "recordings": "Lifetime access to session recordings",
+  "support": "Verified completion certificate and portfolio review included",
+  "contact": {
+    "whatsapp": "+92 300 0000000",
+    "whatsapp_url": "https://wa.me/923000000000",
+    "email": "admissions@skillbridge.pk"
+  },
+  "scholarships": "Scholarship requests require human coordinator review",
+  "compliance": "Never promise guaranteed jobs, fixed monthly dollar income, or overnight freelancing success"
+}
