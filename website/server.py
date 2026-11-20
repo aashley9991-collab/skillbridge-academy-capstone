@@ -15,6 +15,7 @@ DATA.mkdir(parents=True, exist_ok=True)
 LEADS_FILE = DATA / "leads.json"
 KB_FILE = DATA / "knowledge_base.json"
 DISABLE_GEMINI = os.environ.get("SKILLBRIDGE_DISABLE_GEMINI") == "1"
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 LEADS_LOCK = threading.Lock()
 
 
@@ -226,8 +227,10 @@ class Handler(BaseHTTPRequestHandler):
         path = parsed.path
         if path == "/":
             path = "/website/index.html"
+        elif path == "/admin.html":
+            path = "/website/admin.html"
         if path == "/api/leads":
-            if self.headers.get("X-Admin-Password") != "admin123":
+            if self.headers.get("X-Admin-Password") != ADMIN_PASSWORD:
                 return self.send_json(401, {"error": "Unauthorized"})
             try:
                 with LEADS_LOCK:
@@ -240,7 +243,7 @@ class Handler(BaseHTTPRequestHandler):
             except RuntimeError as error:
                 return self.send_json(500, {"error": str(error)})
         if path == "/api/export":
-            if self.headers.get("X-Admin-Password") != "admin123":
+            if self.headers.get("X-Admin-Password") != ADMIN_PASSWORD:
                 return self.send_json(401, {"error": "Unauthorized"})
             output = io.StringIO()
             try:
@@ -372,7 +375,7 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         if length > 8 * 1024:
             return self.send_json(413, {"error": "Request body is too large"})
-        if self.headers.get("X-Admin-Password") != "admin123":
+        if self.headers.get("X-Admin-Password") != ADMIN_PASSWORD:
             return self.send_json(401, {"error": "Unauthorized"})
         try:
             body = json.loads(self.rfile.read(length).decode("utf-8"))
@@ -412,6 +415,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "8000"))
-    print(f"SkillBridge running at http://localhost:{port}")
-    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+    port = int(os.environ.get("PORT", 8000))
+    host = "0.0.0.0"
+    print(f"SkillBridge running on {host}:{port}")
+    ThreadingHTTPServer((host, port), Handler).serve_forever()

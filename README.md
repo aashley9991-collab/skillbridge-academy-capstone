@@ -23,10 +23,10 @@ python website/server.py
 Then open:
 
 - Website: <http://localhost:8000>
-- Admin panel: <http://localhost:8000/website/admin.html>
+- Admin panel: <http://localhost:8000/admin.html> (also available at `/website/admin.html`)
 - Client pitch: <http://localhost:8000/pitch-and-research/client-pitch.html>
 
-The local admin password is `admin123` for demonstration. Do not expose this development configuration to the public internet.
+The local admin password defaults to `admin123` for demonstration. Set `ADMIN_PASSWORD` to a strong, unique value before any hosted deployment. Do not expose the development default to the public internet.
 
 ## Gemini API key (optional)
 
@@ -57,3 +57,17 @@ python pitch-and-research/export_deck_pdf.py
 ```
 
 The promo reel uses `edge-tts` and `imageio-ffmpeg`; internet access may be required to generate voice audio.
+
+## Deploy on Render
+
+Create a **Web Service** from this repository's `main` branch. Choose Python, then set:
+
+- Build command: `python -m pip install -r requirements.txt`
+- Start command: `python website/server.py`
+- Plan: Free
+
+In the service's **Environment** settings, set `ADMIN_PASSWORD` to a strong, unique secret before deploying. Optionally add `GEMINI_API_KEY` and `GOOGLE_APPS_SCRIPT_WEBHOOK_URL`; keep these values in Render's environment settings, not in Git. Render supplies `PORT`; the server binds to `0.0.0.0` and uses that port.
+
+The website and routes are served at the domain root: `/`, `/admin.html`, `/deliverables/...`, `/brand-assets/...`, `/pitch-and-research/...`, and `/api/...`. The Admin Panel login uses the configured `ADMIN_PASSWORD`.
+
+Render Free services spin down when idle, and their filesystem is ephemeral. The Admin Panel's local lead file can be lost when the service restarts or redeploys. The optional Sheets webhook can forward new inquiries, but the current dashboard still reads the local file; use a persistent datastore before relying on hosted lead history.
