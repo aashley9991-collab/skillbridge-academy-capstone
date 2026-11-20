@@ -14,7 +14,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import sys
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / "brand-assets"))
-from crest_drawing import draw_pillow_crest
+from logo_rendering import draw_pillow_logo
 
 OUT = ROOT / "promo-reel-30s.mp4"
 STOCK_DIR = ROOT / "stock-assets"
@@ -185,9 +185,9 @@ def draw_overlay(base: Image.Image, scene: Scene, caption: str, scene_number: in
     draw = ImageDraw.Draw(image, "RGBA")
 
     draw.rounded_rectangle((48, 48, 1032, 286), radius=40, fill=(30, 27, 75, 228), outline=(248, 250, 252, 85), width=2)
-    draw_pillow_crest(draw, 70, 58, 130)
-    draw.text((225, 96), "SKILLBRIDGE", font=font(43, True), fill=OFF_WHITE)
-    draw.text((227, 154), "A C A D E M Y", font=font(22, True), fill=COPPER)
+    draw_pillow_logo(image, 70, 58, 130, 130)
+    draw.text((225, 102), "WEEKEND BOOTCAMPS", font=font(34, True), fill=OFF_WHITE)
+    draw.text((227, 158), "FOR STUDENTS + GRADUATES", font=font(20, True), fill=COPPER)
     draw.text((840, 103), f"{scene_number:02d} / 05", font=font(25, True), fill=OFF_WHITE)
     for index in range(5):
         left = 842 + index * 29

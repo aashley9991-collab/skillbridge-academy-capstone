@@ -7,12 +7,11 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "brand-assets"))
-from crest_drawing import draw_reportlab_crest
+from logo_rendering import draw_reportlab_logo
 
 OUT=Path(__file__).resolve().parent/"Student-Freelancing-Starter-Kit.pdf"
 
 styles=getSampleStyleSheet()
-styles.add(ParagraphStyle(name="TitleWhite",parent=styles["Title"],textColor=colors.HexColor("#FFFFFF"),fontName="Helvetica-Bold",fontSize=28,leading=34))
 styles.add(ParagraphStyle(name="Section",parent=styles["Heading1"],textColor=colors.HexColor("#1E1B4B"),fontSize=20,spaceBefore=8,spaceAfter=10))
 styles.add(ParagraphStyle(name="BodyNavy",parent=styles["BodyText"],textColor=colors.HexColor("#1E1B4B"),fontSize=10.5,leading=16))
 navy=colors.HexColor("#1E1B4B");teal=colors.HexColor("#0F766E");gold=colors.HexColor("#D97706");cloud=colors.HexColor("#F8FAFC")
@@ -23,11 +22,12 @@ class Crest(Flowable):
         self.width=42*mm
         self.height=44*mm
     def draw(self):
-        draw_reportlab_crest(self.canv, 0, 0, self.width, self.height)
+        draw_reportlab_logo(self.canv, 0, 0, self.width, self.height)
 
+hero_style=ParagraphStyle(name="Hero",parent=styles["BodyText"],textColor=colors.HexColor("#FFFFFF"),fontSize=20,leading=26)
 doc=SimpleDocTemplate(str(OUT),pagesize=A4,rightMargin=18*mm,leftMargin=18*mm,topMargin=18*mm,bottomMargin=18*mm,title="Student Freelancing & Remote Work Starter Kit")
 story=[]
-story += [Table([[Crest(),Paragraph("SKILLBRIDGE ACADEMY",styles["TitleWhite"])],[Paragraph("Student Freelancing & Remote Work Starter Kit",ParagraphStyle(name="Hero",parent=styles["BodyText"],textColor=colors.HexColor("#FFFFFF"),fontSize=18,leading=24))]],colWidths=[48*mm,126*mm],rowHeights=[48*mm,32*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,-1),navy),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),6*mm)])),Spacer(1,12*mm),
+story += [Table([[Crest(),Paragraph("Student Freelancing & Remote Work Starter Kit",hero_style)]],colWidths=[48*mm,126*mm],rowHeights=[80*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,-1),navy),("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),6*mm)])),Spacer(1,12*mm),
 Paragraph("Start with skills, evidence, and a repeatable process.",styles["Section"]),
 Paragraph("This starter kit is a practical guide for Pakistani university students and fresh graduates exploring freelancing or remote work. It does not guarantee a job or income.",styles["BodyNavy"]),Spacer(1,8*mm)]
 

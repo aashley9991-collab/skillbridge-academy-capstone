@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "brand-assets"))
-from crest_drawing import draw_reportlab_crest
+from logo_rendering import draw_reportlab_logo
 
 OUT=Path(__file__).resolve().parent/"client-pitch.pdf"
 slides=[
@@ -23,9 +23,9 @@ slides=[
 c=canvas.Canvas(str(OUT),pagesize=landscape(A4))
 for title,body in slides:
     c.setFillColorRGB(30/255,27/255,75/255);c.rect(0,0,842,595,fill=1,stroke=0)
-    c.setFillColorRGB(217/255,119/255,6/255);c.setFont("Helvetica-Bold",18);c.drawString(60,520,"SKILLBRIDGE ACADEMY")
+    c.setFillColorRGB(217/255,119/255,6/255);c.setFont("Helvetica-Bold",18);c.drawString(60,520,"WEEKEND BOOTCAMPS")
     c.setFillColorRGB(248/255,250/255,252/255);c.setFont("Helvetica-Bold",42);c.drawString(60,420,title)
-    draw_reportlab_crest(c, 740, 485, 85, 90)
+    draw_reportlab_logo(c, 740, 485, 85, 90)
     c.setStrokeColorRGB(15/255,118/255,110/255);c.setLineWidth(4);c.line(60,495,782,495)
     c.setFont("Helvetica",24)
     words=body.split();line="";y=340

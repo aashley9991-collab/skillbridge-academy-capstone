@@ -60,7 +60,7 @@ class ChatApiTests(unittest.TestCase):
             ("/", "text/html", b"SkillBridge Academy | Weekend Bootcamps"),
             ("/admin.html", "text/html", b"Admin access"),
             ("/deliverables/Student-Freelancing-Starter-Kit.pdf", "application/pdf", b"%PDF-"),
-            ("/brand-assets/logo.svg", "image/svg+xml", b"<svg"),
+            ("/brand-assets/custom-logo.png", "image/png", b"\x89PNG\r\n\x1a\n"),
             ("/website/app.js", "application/javascript", b"SpeechRecognition"),
             ("/pitch-and-research/client-pitch.html", "text/html", b"<html"),
         )

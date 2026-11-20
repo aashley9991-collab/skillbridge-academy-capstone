@@ -1,7 +1,7 @@
 # SkillBridge Academy Brand Guidelines
 
 ## Brand idea
-SkillBridge Academy is a modern, prestigious learning institution. Its traditional circular academic seal pairs a wide-winged falcon with rising sunburst rays, a curved SKILLBRIDGE name, and a folded ACADEMY ribbon. The falcon represents focus and forward motion; the rising rays signify discovery and ambition.
+SkillBridge Academy is a modern, prestigious learning institution. The official mark pairs a graduation-cap falcon with a globe and bridge, the SKILLBRIDGE ACADEMY wordmark, and the tagline “Build Skills for Freelancing and Remote Work.” The falcon represents focus and forward motion; the bridge represents a practical path to new opportunities.
 
 ## Color palette
 - Deep Royal Indigo — `#1E1B4B` (primary identity, headings, and trust)
@@ -18,10 +18,10 @@ SkillBridge Academy is a modern, prestigious learning institution. Its tradition
 - Headings: bold, high contrast; body: regular, 1.5 line height
 
 ## Crest and logo use
-- The circular seal has a double ring, gold sunburst, wide-winged falcon with feather linework, curved SKILLBRIDGE lettering, and folded ACADEMY ribbon.
-- Preserve clear space equal to half the icon width.
-- Use the crest lockup on crisp off-white or pale backgrounds; use the simplified crest favicon at small sizes.
-- Do not stretch, recolor, add effects, or place over busy imagery.
+- Use `custom-logo.png` as the official logo and favicon.
+- Preserve the image's square aspect ratio with `object-fit: contain`; never stretch, recolor, crop, or add effects.
+- At small sizes, keep the full image visible rather than cropping its wordmark or tagline.
+- Prefer clear, uncluttered backgrounds and provide sufficient contrast around the image.
 
 ## Ethical & Copyright Compliance Checklist
 - [ ] Never promise guaranteed jobs.

@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
-from crest_drawing import draw_pillow_crest
+from logo_rendering import draw_pillow_logo
 
 OUT = Path(__file__).resolve().parent
 NAVY, TEAL, GOLD, WHITE = "#1E1B4B", "#0F766E", "#D97706", "#F8FAFC"
@@ -23,8 +23,8 @@ def ad1():
     d = ImageDraw.Draw(im)
     d.ellipse((760,-180,1220,280), fill=TEAL)
     d.ellipse((820,780,1280,1240), fill=GOLD)
-    draw_pillow_crest(d, 58, 24, 142)
-    d.text((220,112), "SKILLBRIDGE ACADEMY", font=font(36, True), fill=GOLD)
+    draw_pillow_logo(im, 58, 24, 142, 142)
+    d.text((220,112), "WEEKEND BOOTCAMPS", font=font(36, True), fill=GOLD)
     d.text((70,250), "Weekend skills.\nReal portfolios.", font=font(82, True), fill=WHITE)
     d.text((70,500), "AI & Prompting Bootcamp", font=font(44, True), fill=WHITE)
     d.text((70,558), "4 weeks  •  PKR 8,000", font=font(34), fill="#CDEEE8")
@@ -38,7 +38,7 @@ def ad2():
     im = Image.new("RGB",(1080,1080),WHITE)
     d=ImageDraw.Draw(im)
     d.rectangle((0,0,1080,230),fill=NAVY)
-    draw_pillow_crest(d, 875, 20, 140)
+    draw_pillow_logo(im, 875, 20, 140, 140)
     d.text((70,82),"BUILD YOUR REMOTE-WORK PATH",font=font(45,True),fill=WHITE)
     d.text((70,300),"Choose a focused track",font=font(58,True),fill=NAVY)
     rounded(d,(70,430,1010,650),32,"#E7F7F4")
